@@ -11,13 +11,22 @@ const validateCreateUser = require('../../validation/create_user');
 //load the User model for use in our routes
 const User = require('../../models/User');
 
+// @route   Get api/users
+// @desc    Get all users
+// @access  Public
+router.get('/', (req, res) => {
+    User.find()
+        .then(users => res.json(users))
+        .catch(err => res.status(404).json({noshiftsfound: 'No users found'}))
+});
+
 // @route Post api/users/create
 // @desc Create a user
 // @access Public
 router.post('/create', (req, res) => {
 
     var { errors, isValid } = validateCreateUser(req.body);
-    
+
     //Check validation
     if(!isValid) {
         return res.status(400).json(errors);

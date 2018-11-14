@@ -29,7 +29,7 @@ router.get('/', (req, res) => {
 
     Shift.find(query)
         .sort({ start_date: 1})
-        .then(posts => res.json(posts))
+        .then(shifts => res.json(shifts))
         .catch(err => res.status(404).json({noshiftsfound: 'No shifts found'}))
 });
 
