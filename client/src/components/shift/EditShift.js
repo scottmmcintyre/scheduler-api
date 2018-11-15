@@ -2,17 +2,16 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { createShift } from '../../actions/shiftActions';
+import { editShift, loadCurrentShift } from '../../actions/shiftActions';
 import TextField from '../common/TextField';
 
-class CreateShift extends Component {
+class EditShift extends Component {
 
     state = {
+        id: '',
         name: '',
         start_date: '',
         end_date: '',
-        user: '',
-        selectValue: '',
         errors: {}
     }
 
@@ -20,6 +19,15 @@ class CreateShift extends Component {
         if(!this.props.auth.isAuthenticated) {
           this.props.history.push("/login");
         }
+        let { id } = this.props.match.params
+        this.props.loadCurrentShift(id);
+    }
+
+    componentDidUpdate() {
+        if (this.props.currentShift._id !== this.state.id){
+            const { _id, name, start_date, end_date, user } = this.props.currentShift;
+            this.setState({id: _id, name: name, start_date: start_date, end_date: end_date, user: user, selectValue: user, errors: {}})
+            }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -32,44 +40,36 @@ class CreateShift extends Component {
         this.setState({[e.target.name]: e.target.value});
     }
 
-    handleSelectChange = (e) => {
-        this.setState({selectValue: e.target.value, user: e.target.value})
-    }
-
     handleSubmit = (e) => {
         e.preventDefault();
-        const { name, start_date, end_date, user } = this.state;
+        const { id, name, start_date, end_date, user } = this.state;
 
         const newShift = {
+            id,
             name,
             start_date,
             end_date,
             user
         };
-
-        console.log(newShift);
         //withRouter wrapping below allows us to pass in this.props.history to do the redirect in the action creator
-        this.props.createShift(newShift, this.props.history);
-    }
-
-    createEmployeeList() {
-        let employees = this.props.resources.map(resource => {
-            return (
-                <option key={resource.id} value={resource.id}>{resource.name}</option>
-            )
-        });
-        return employees;
+        this.props.editShift(newShift, this.props.history);
     }
 
     render() {
+
+        const { loadingCurrentShift } = this.props;
+
+        if(loadingCurrentShift || this.state.id === undefined) {
+            return <div>Loading...</div>
+        }
         const { errors } = this.state;
-    
+
         return (
             <div className="create-user">
                 <div className="container">
                 <div className="row">
                     <div className="col-md-8 m-auto">
-                    <h1 className="display-4 text-center">Create A New Shift</h1>
+                    <h1 className="display-4 text-center">Edit Shift</h1>
                     <form noValidate onSubmit={this.handleSubmit}>
                         <TextField 
                             placeholder="Name"
@@ -77,6 +77,7 @@ class CreateShift extends Component {
                             value={this.state.name}
                             onChange={this.handleChange}
                             error={errors.name}
+                            readOnly={true}
                         />
                         <TextField 
                             placeholder="Start Date"
@@ -84,7 +85,7 @@ class CreateShift extends Component {
                             value={this.state.start_date}
                             onChange={this.handleChange}
                             error={errors.start_date}
-                            info="Must be entered in ISO 8601 format like: YYYY-MM-DDTHH:MM"
+                            info="Must be entered in a vaid ISO 8601 format like: YYYY-MM-DDTHH:MM:SS"
                         />
                         <TextField
                             placeholder="End Date"
@@ -92,13 +93,9 @@ class CreateShift extends Component {
                             value={this.state.end_date}
                             onChange={this.handleChange}  
                             error={errors.end_date}
-                            info="Must be entered in ISO 8601 format like: YYYY-MM-DDTHH:MM"
+                            info="Must be entered in a valid ISO 8601 format like: YYYY-MM-DDTHH:MM:SS"
                         />
-                        <p>Employee:</p>
-                        <select className="form-control" value={this.state.selectValue} name="user" onChange={this.handleSelectChange} info="If no employee selected, defaults to logged in user">
-                            <option>--Defaults to logged in user--</option>
-                            {this.createEmployeeList()}
-                        </select>
+                        <div name="shiftoverlap" error={errors.shiftoverlap}></div>
                         <input type="submit" className="btn btn-info btn-block mt-4" />
                     </form>
                     </div>
@@ -109,16 +106,18 @@ class CreateShift extends Component {
     }
 }
 
-CreateShift.propTypes = {
-    createShift: PropTypes.func.isRequired,
+EditShift.propTypes = {
+    editShift: PropTypes.func.isRequired,
+    loadCurrentShift: PropTypes.func.isRequired,
     auth: PropTypes.object.isRequired,
     errors: PropTypes.object.isRequired
 };
 
 const mapStateToProps = (state) => ({
     auth: state.auth,
-    resources: state.shift.resources,
+    currentShift: state.shift.currentShift,
+    loadingCurrentShift: state.shift.loadingCurrentShift,
     errors: state.errors
 });
 
-export default connect(mapStateToProps, {createShift})(withRouter(CreateShift));
+export default connect(mapStateToProps, {editShift, loadCurrentShift})(withRouter(EditShift));

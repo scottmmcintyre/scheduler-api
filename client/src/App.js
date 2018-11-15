@@ -1,21 +1,20 @@
 import React, { Component } from 'react';
-import { Provider } from 'react-redux';
 import store from './store';
-import './App.css';
 import Calendar from './components/calendar/Calendar';
 import Navbar from './components/layout/Navbar';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 import Login from './components/auth/Login';
 import CreateUser from './components/auth/CreateUser';
 import jwt_decode from 'jwt-decode';
 import setAuthToken from './util/setAuthToken';
 import { setCurrentUser, logoutUser } from './actions/authActions';
 import CreateShift from './components/shift/CreateShift';
+import EditShift from './components/shift/EditShift';
 
 if(localStorage.jwtToken) {
   //set Auth token header auth
   setAuthToken(localStorage.jwtToken);
-  //decode token and get user info and exp
+  //decode token and get user info and expiration
   const decoded = jwt_decode(localStorage.jwtToken);
   //set user and isAuthenticated
   store.dispatch(setCurrentUser(decoded));
@@ -39,6 +38,7 @@ class App extends Component {
               <Route exact path="/login" component={Login} />
               <Route exact path="/user/create" component={CreateUser} />
               <Route exact path="/shift/create" component={CreateShift} />
+              <Route exact path="/shift/edit/:id" component={EditShift} />
           </div>
         </Router>
     );

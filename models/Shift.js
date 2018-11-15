@@ -14,9 +14,17 @@ const ShiftSchema = new Schema({
         type: Date,
         required: true
     },
+    start_date_string: {
+        type: String,
+        required: true
+    },
+    end_date_string: {
+        type: String,
+        required: true
+    },
     user: {
         type: Schema.Types.ObjectId,
-        ref: 'user'
+        ref: 'users'
     }
 })
 

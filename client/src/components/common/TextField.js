@@ -10,7 +10,8 @@ function TextField({
     info,
     type,
     onChange,
-    disabled
+    disabled,
+    readOnly
 }) {
 
     return (
@@ -25,6 +26,7 @@ function TextField({
             value={value} 
             onChange={onChange} 
             disabled={disabled}
+            readOnly={readOnly}
             />
             {info && <small className="form-text text-muted">{info}</small>}
             {error && (
@@ -42,7 +44,8 @@ TextField.propTypes = {
     error: PropTypes.string,
     type: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
-    disabled: PropTypes.string
+    disabled: PropTypes.string,
+    readOnly: PropTypes.bool
 }
 
 TextField.defaultProps = {

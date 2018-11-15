@@ -2,10 +2,9 @@ import React, { Component } from 'react'
 import 'react-big-scheduler/lib/css/style.css'
 import Scheduler, { SchedulerData, ViewTypes } from 'react-big-scheduler'
 import withDragDropContext from '../../util/withDnDContext';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { loadEvents, loadResources } from '../../actions/shiftActions';
-
-
+import { loadEvents, loadResources, deleteShift } from '../../actions/shiftActions';
 
 class Calendar extends Component{
 
@@ -25,7 +24,19 @@ class Calendar extends Component{
         this.props.loadResources();
     }
 
+    componentDidMount() {
+        if(!this.props.auth.isAuthenticated) {
+            this.props.history.push("/login");
+          }
+    }
+
     render(){
+        const { loadingEvents, loadingResources } = this.props;
+
+        if(loadingEvents || loadingResources) {
+            return <div>Loading...</div>;
+        }
+
         const {viewModel} = this.state;
         viewModel.setResources(this.props.shift.resources);
         viewModel.setEvents(this.props.shift.events);
@@ -38,12 +49,8 @@ class Calendar extends Component{
                                onSelectDate={this.onSelectDate}
                                onViewChange={this.onViewChange}
                                eventItemClick={this.eventClicked}
-                               viewEventClick={this.ops1}
-                               viewEventText="Ops 1"
-                               viewEvent2Text="Ops 2"
-                               viewEvent2Click={this.ops2}
-                               updateEventStart={this.updateEventStart}
-                               updateEventEnd={this.updateEventEnd}
+                               viewEventClick={this.delete}
+                               viewEventText="Delete"
                                moveEvent={this.moveEvent}
                                newEvent={this.newEvent}
                                onScrollLeft={this.onScrollLeft}
@@ -58,7 +65,7 @@ class Calendar extends Component{
 
     prevClick = (schedulerData)=> {
         schedulerData.prev();
-        schedulerData.setEvents(this.state.events);
+        schedulerData.setEvents(this.props.shift.events);
         this.setState({
             viewModel: schedulerData
         })
@@ -66,7 +73,7 @@ class Calendar extends Component{
 
     nextClick = (schedulerData)=> {
         schedulerData.next();
-        schedulerData.setEvents(this.state.events);
+        schedulerData.setEvents(this.props.shift.events);
         this.setState({
             viewModel: schedulerData
         })
@@ -74,7 +81,7 @@ class Calendar extends Component{
 
     onViewChange = (schedulerData, view) => {
         schedulerData.setViewType(view.viewType, view.showAgenda, view.isEventPerspective);
-        schedulerData.setEvents(this.state.events);
+        schedulerData.setEvents(this.props.shift.events);
         this.setState({
             viewModel: schedulerData
         })
@@ -82,79 +89,28 @@ class Calendar extends Component{
 
     onSelectDate = (schedulerData, date) => {
         schedulerData.setDate(date);
-        schedulerData.setEvents(this.state.events);
+        schedulerData.setEvents(this.props.shift.events);
         this.setState({
             viewModel: schedulerData
         })
     }
 
     eventClicked = (schedulerData, event) => {
-        alert(`You just clicked an event: {id: ${event.id}, title: ${event.title}}`);
+        this.props.history.push(`/shift/edit/${event.id}`);
     };
 
-    ops1 = (schedulerData, event) => {
-        alert(`You just executed ops1 to event: {id: ${event.id}, title: ${event.title}}`);
+    delete = (schedulerData, event) => {
+        this.props.deleteShift(event.id);
     };
 
     ops2 = (schedulerData, event) => {
         alert(`You just executed ops2 to event: {id: ${event.id}, title: ${event.title}}`);
     };
 
-    // newEvent = (schedulerData, slotId, slotName, start, end, type, item) => {
-    //     if(confirm(`Do you want to create a new event? {slotId: ${slotId}, slotName: ${slotName}, start: ${start}, end: ${end}, type: ${type}, item: ${item}}`)){
-
-    //         let newFreshId = 0;
-    //         schedulerData.events.forEach((item) => {
-    //             if(item.id >= newFreshId)
-    //                 newFreshId = item.id + 1;
-    //         });
-
-    //         let newEvent = {
-    //             id: newFreshId,
-    //             title: 'New event you just created',
-    //             start: start,
-    //             end: end,
-    //             resourceId: slotId,
-    //             bgColor: 'purple'
-    //         }
-    //         schedulerData.addEvent(newEvent);
-    //         this.setState({
-    //             viewModel: schedulerData
-    //         })
-    //     }
-    // }
-
-    // updateEventStart = (schedulerData, event, newStart) => {
-    //     if(confirm(`Do you want to adjust the start of the event? {eventId: ${event.id}, eventTitle: ${event.title}, newStart: ${newStart}}`)) {
-    //         schedulerData.updateEventStart(event, newStart);
-    //     }
-    //     this.setState({
-    //         viewModel: schedulerData
-    //     })
-    // }
-
-    // updateEventEnd = (schedulerData, event, newEnd) => {
-    //     if(confirm(`Do you want to adjust the end of the event? {eventId: ${event.id}, eventTitle: ${event.title}, newEnd: ${newEnd}}`)) {
-    //         schedulerData.updateEventEnd(event, newEnd);
-    //     }
-    //     this.setState({
-    //         viewModel: schedulerData
-    //     })
-    // }
-
-    // moveEvent = (schedulerData, event, slotId, slotName, start, end) => {
-    //     if(confirm(`Do you want to move the event? {eventId: ${event.id}, eventTitle: ${event.title}, newSlotId: ${slotId}, newSlotName: ${slotName}, newStart: ${start}, newEnd: ${end}`)) {
-    //         schedulerData.moveEvent(event, slotId, slotName, start, end);
-    //         this.setState({
-    //             viewModel: schedulerData
-    //         })
-    //     }
-    // }
-
     onScrollRight = (schedulerData, schedulerContent, maxScrollLeft) => {
         if(schedulerData.ViewTypes === ViewTypes.Day) {
             schedulerData.next();
-            schedulerData.setEvents(this.state.events);
+            schedulerData.setEvents(this.props.shift.events);
             this.setState({
                 viewModel: schedulerData
             });
@@ -177,7 +133,10 @@ class Calendar extends Component{
 }
 
 const mapStateToProps = (state) => ({
-    shift: state.shift
+    auth: state.auth,
+    shift: state.shift,
+    loadingEvents: state.shift.loadingEvents,
+    loadingResources: state.shift.loadingResources
 })
 
-export default withDragDropContext(connect(mapStateToProps, { loadEvents, loadResources })(Calendar))
+export default withDragDropContext(connect(mapStateToProps, { loadEvents, loadResources, deleteShift })(withRouter(Calendar)))
