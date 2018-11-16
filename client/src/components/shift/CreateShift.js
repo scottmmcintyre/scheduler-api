@@ -84,7 +84,7 @@ class CreateShift extends Component {
                             value={this.state.start_date}
                             onChange={this.handleChange}
                             error={errors.start_date}
-                            info="Must be entered in ISO 8601 format like: YYYY-MM-DDTHH:MM"
+                            info="Must be entered in a valid ISO 8601 format (example: YYYY-MM-DDTHH:MM)"
                         />
                         <TextField
                             placeholder="End Date"
@@ -92,7 +92,7 @@ class CreateShift extends Component {
                             value={this.state.end_date}
                             onChange={this.handleChange}  
                             error={errors.end_date}
-                            info="Must be entered in ISO 8601 format like: YYYY-MM-DDTHH:MM"
+                            info="Must be entered in a valid ISO 8601 format (example: YYYY-MM-DDTHH:MM)"
                         />
                         <p>Employee:</p>
                         <select className="form-control" value={this.state.selectValue} name="user" onChange={this.handleSelectChange} info="If no employee selected, defaults to logged in user">

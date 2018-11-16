@@ -56,8 +56,6 @@ class Calendar extends Component{
                                eventItemClick={this.eventClicked}
                                viewEventClick={this.delete}
                                viewEventText="Delete"
-                               moveEvent={this.moveEvent}
-                               newEvent={this.newEvent}
                                onScrollLeft={this.onScrollLeft}
                                onScrollRight={this.onScrollRight}
                                onScrollTop={this.onScrollTop}
@@ -106,10 +104,6 @@ class Calendar extends Component{
 
     delete = (schedulerData, event) => {
         this.props.deleteShift(event.id);
-    };
-
-    ops2 = (schedulerData, event) => {
-        alert(`You just executed ops2 to event: {id: ${event.id}, title: ${event.title}}`);
     };
 
     onScrollRight = (schedulerData, schedulerContent, maxScrollLeft) => {
