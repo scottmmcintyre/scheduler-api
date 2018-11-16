@@ -184,7 +184,9 @@ router.post('/create', passport.authenticate('jwt', { session: false }), (req, r
                     res.status(400).json({start_date: 'Overlaps with existing shift for user', end_date: 'Overlaps with existing shift for user'})
                 }
             })
-            .catch(err => console.log(err));
+            .catch(
+                //validator.js and mongoose apparently disagree on what a valid ISO 8601 string is, so I'm not logging this catch to avoid cluttering the console with a warning I'm seeing.
+            );
     }
 });
 
@@ -272,7 +274,9 @@ router.post('/edit/:id', passport.authenticate('jwt', { session: false}), (req, 
                 res.status(400).json({start_date: 'Overlaps with existing shift for user', end_date: 'Overlaps with existing shift for user'})
             }
         })
-        .catch(err => console.log(err));    
+        .catch(
+            //validator.js and mongoose apparently disagree on what a valid ISO 8601 string is, so I'm not logging this catch to avoid cluttering the console with a warning I'm seeing.
+        );    
     }
 });
 
