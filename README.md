@@ -1,5 +1,5 @@
 # scheduler-api
-This is a Scheduler API that I created with Node/Express/Mongoose with a MongoDB backend. I chose Node for backend because of the speed and ease of creating simple APIs. I also built a simple React/Redux UI based around a scheduler calendar component that I found.
+This is a Scheduler API that I created with Node/Express/Mongoose with a MongoDB backend for a WhenIWork code challenge. I chose Node for the backend because of the speed and ease of creating simple APIs in Node with Express. I also built a simple React/Redux UI based around a scheduler calendar component that I found called [react-big-scheduler](https://github.com/StephenChou1017/react-big-scheduler).
 
 # Install steps
 Requires [node.js](https://nodejs.org) to be installed.
