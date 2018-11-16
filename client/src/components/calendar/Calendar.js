@@ -5,6 +5,7 @@ import withDragDropContext from '../../util/withDnDContext';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { loadEvents, loadResources, deleteShift } from '../../actions/shiftActions';
+import Spinner from '../common/Spinner';
 
 class Calendar extends Component{
 
@@ -34,7 +35,11 @@ class Calendar extends Component{
         const { loadingEvents, loadingResources } = this.props;
 
         if(loadingEvents || loadingResources) {
-            return <div>Loading...</div>;
+            return (
+            <div className="container">
+                <Spinner />
+            </div>
+            )
         }
 
         const {viewModel} = this.state;

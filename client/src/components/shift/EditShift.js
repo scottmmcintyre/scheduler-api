@@ -4,6 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { editShift, loadCurrentShift } from '../../actions/shiftActions';
 import TextField from '../common/TextField';
+import Spinner from '../common/Spinner';
 
 class EditShift extends Component {
 
@@ -60,8 +61,13 @@ class EditShift extends Component {
         const { loadingCurrentShift } = this.props;
 
         if(loadingCurrentShift || this.state.id === undefined) {
-            return <div>Loading...</div>
+            return (
+                <div className="container">
+                    <Spinner />
+                </div>
+                )        
         }
+
         const { errors } = this.state;
 
         return (

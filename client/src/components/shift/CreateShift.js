@@ -96,7 +96,7 @@ class CreateShift extends Component {
                         />
                         <p>Employee:</p>
                         <select className="form-control" value={this.state.selectValue} name="user" onChange={this.handleSelectChange} info="If no employee selected, defaults to logged in user">
-                            <option>--Defaults to logged in user--</option>
+                            <option value="">--Defaults to logged in user--</option>
                             {this.createEmployeeList()}
                         </select>
                         <input type="submit" className="btn btn-info btn-block mt-4" />

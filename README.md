@@ -1,7 +1,9 @@
 # scheduler-api
-Requires [node.js](https://nodejs.org) to be installed.
+This is a Scheduler API that I created with Node/Express/Mongoose with a MongoDB backend. I chose Node for backend because of the speed and ease of creating simple APIs. I also built a simple React/Redux UI based around a scheduler calendar component that I found.
 
 # Install steps
+Requires [node.js](https://nodejs.org) to be installed.
+
 From the project root, run:
 ```
 npm install
@@ -13,4 +15,6 @@ From the project root, run:
 ```
 npm run dev
 ```
-This will start the node API server at localhost:5000 and the React client at localhost:3000.
+This will start the Node API server at localhost:5000 and the React client at [localhost:3000](http://localhost:3000). 
+
+Swagger UI docs are available at [localhost:5000/api-docs](http://localhost:5000/api-docs).
