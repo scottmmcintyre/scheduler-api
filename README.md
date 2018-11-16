@@ -18,3 +18,6 @@ npm run dev
 This will start the Node API server at localhost:5000 and the React client at [localhost:3000](http://localhost:3000). 
 
 Swagger UI docs are available at [localhost:5000/api-docs](http://localhost:5000/api-docs).
+
+Thanks for looking!
+-Scott
