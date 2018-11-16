@@ -74,7 +74,7 @@ router.get('/', (req, res) => {
             })
             res.json(no_pass_users);
         })
-        .catch(err => res.status(404).json({noshiftsfound: 'No users found'}))
+        .catch(err => res.status(404).json({noshiftsfound: 'No users found'}));
 });
 
 /**
@@ -121,35 +121,35 @@ router.post('/create', (req, res) => {
     //Check validation
     if(!isValid) {
         return res.status(400).json(errors);
-    }
-
-    //Check for existing username in system, if none, create new user
-    User.findOne({ username: req.body.username })
-        .then(user => {
-            if(user) {
-                return res.status(400).json({ username: 'Username already taken'});
-            } else {
-                const new_user = new User({
-                    username: req.body.username,
-                    name: req.body.name,
-                    email: req.body.email,
-                    password: req.body.password,
-                    role: req.body.role
-                });
-                
-                //hash password and store it
-                bcrypt.genSalt(10, (err, salt) => {
-                    bcrypt.hash(new_user.password, salt, (err, hash) => {
-                        if (err) throw err;
-                        new_user.password = hash;
-                        new_user.save()
-                            .then( user => res.json(user))
-                            .catch( err => console.log(err));
+    } else {
+        //Check for existing username in system, if none, create new user
+        User.findOne({ username: req.body.username })
+            .then(user => {
+                if(user) {
+                    return res.status(400).json({ username: 'Username already taken'});
+                } else {
+                    const new_user = new User({
+                        username: req.body.username,
+                        name: req.body.name,
+                        email: req.body.email,
+                        password: req.body.password,
+                        role: req.body.role
                     });
-                });
-            }
-        });
-
+                    
+                    //hash password and store it
+                    bcrypt.genSalt(10, (err, salt) => {
+                        bcrypt.hash(new_user.password, salt, (err, hash) => {
+                            if (err) throw err;
+                            new_user.password = hash;
+                            new_user.save()
+                                .then( user => res.json(user))
+                                .catch( err => console.log(err));
+                        });
+                    });
+                }
+            })
+            .catch(err => console.log(err));
+    }
 });
 
 // @route Post api/users/edit/:id
@@ -291,8 +291,10 @@ router.post('/login', (req, res) => {
                     } else {
                         return res.status(400).json({ password: 'Password incorrect'});
                     }
-                });
-        });
+                })
+                .catch(err => console.log(err));
+        })
+        .catch(err => console.log(err));
 });
 
 module.exports = router;
