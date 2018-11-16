@@ -75,14 +75,6 @@ class CreateUser extends Component {
                             onChange={this.handleChange}
                             error={errors.username}
                         />
-                        <TextField
-                            placeholder="Role"
-                            name="role"
-                            value={this.state.role}
-                            onChange={this.handleChange}
-                            error={errors.role}
-                            info="Must be either 'manager' or 'employee'"
-                        />
                         <TextField 
                             placeholder="Email"
                             type="email"
@@ -107,6 +99,11 @@ class CreateUser extends Component {
                             onChange={this.handleChange}
                             error={errors.password2}
                         />
+                        <p>Role:</p>
+                        <select className="form-control" value={this.state.role} name="role" onChange={this.handleChange}>
+                            <option value="employee">Employee</option>
+                            <option value="manager">Manager</option>
+                        </select>
                         <input type="submit" className="btn btn-info btn-block mt-4" />
                     </form>
                     </div>

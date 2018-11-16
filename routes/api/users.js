@@ -11,18 +11,109 @@ const validateCreateUser = require('../../validation/create_user');
 //load the User model for use in our routes
 const User = require('../../models/User');
 
-// @route   Get api/users
-// @desc    Get all users
-// @access  Public
+/**
+ * @swagger
+ * definition:
+ *   users:
+ *     properties:
+ *       _id:
+ *         type: string
+ *         format: uuid
+ *       username:
+ *         type: string
+ *       name:
+ *         type: string
+ *       email:
+ *         type: string
+ *       password:
+ *         type: string
+ *       role:
+ *         type: string
+ */
+
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     tags:
+ *       - users
+ *     description: Get all users
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: An array of user objects
+ *         schema:
+ *           type: object
+ *           properties:
+ *             _id: 
+ *               type: string
+ *             username: 
+ *               type: string
+ *             name:
+ *               type: string
+ *             email:
+ *               type: string
+ *             role:
+ *               type: string
+ *       404:
+ *         description: No users found
+ */
 router.get('/', (req, res) => {
     User.find()
-        .then(users => res.json(users))
+        .then(users => {
+            let no_pass_users = users.map(user => {
+                let temp_user = {
+                    _id: user.id,
+                    username: user.username,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role
+                }
+                return temp_user;
+            })
+            res.json(no_pass_users);
+        })
         .catch(err => res.status(404).json({noshiftsfound: 'No users found'}))
 });
 
-// @route Post api/users/create
-// @desc Create a user
-// @access Public
+/**
+ * @swagger
+ * /api/users/create:
+ *   post:
+ *     tags:
+ *       - users
+ *     description: Create a user
+ *     consumes:
+ *       - application/json
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: user
+ *         required: true
+ *         description: The user to create
+ *         schema:
+ *           type: object
+ *           properties:
+ *             username:
+ *               type: string
+ *             name:
+ *               type: string
+ *             email:
+ *               type: string
+ *             password:
+ *               type: string
+ *             role:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: Inserts the new user into the DB and returns the new user object
+ *         schema:
+ *           $ref: '#/definitions/users'
+ *       400:
+ *         description: Error object from validator. Will be rejected if shift dates overlap with an existing shift for the user
+ */
 router.post('/create', (req, res) => {
 
     var { errors, isValid } = validateCreateUser(req.body);
@@ -64,11 +155,56 @@ router.post('/create', (req, res) => {
 // @route Post api/users/edit/:id
 // @desc Edit a user. Employees can only edit their own user, managers can edit all users
 // @access Private
+/**
+ * @swagger
+ * /api/users/edit/{id}:
+ *   post:
+ *     security:
+ *       - JWT: []
+ *     tags:
+ *       - users
+ *     description: Edit a user by id
+ *     consumes:
+ *       - application/json
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         type: string
+ *         description: The user id
+ *       - in: body
+ *         name: shift
+ *         description: All fields optional. Username cannot be changed.
+ *         required: true
+ *         schema:
+ *           type: object
+ *           properties:
+ *             name:
+ *               type: string
+ *             email:
+ *               type: string
+ *             role:
+ *               type: string
+ *             password:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: Updates the user object in the DB and returns the user object
+ *         schema:
+ *           $ref: '#/definitions/users'
+ *       400:
+ *         description: Error object from validator. Will be rejected if shift dates overlap with an existing shift for the user (other than the shift that is being edited)
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found with that id
+ */
 router.post('/edit/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
 
-    //TODO: add validation
     if(req.params.id != req.user.id && req.user.role != 'manager') {
-        res.status(401).json({wronguser: "You can only edit your own user"})
+        res.status(400).json({wronguser: "You can only edit your own user"})
     }
 
     var update_fields = {};
@@ -100,9 +236,39 @@ router.post('/edit/:id', passport.authenticate('jwt', {session: false}), (req, r
         .catch(err => res.status(404).json({usernotfound: 'No user found by that id'}));
 });
 
-// @route   Post api/users/login
-// @desc    Logs in a user, returns a JWT bearer token
-// @access  Public
+/**
+ * @swagger
+ * /api/users/login:
+ *   post:
+ *     tags:
+ *       - users
+ *     description: Login in a user and receive a JWT
+ *     consumes:
+ *       - application/json
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: user-login
+ *         description: The user's login information
+ *         schema:
+ *           type: object
+ *           required: 
+ *             - username
+ *             - password
+ *           properties:
+ *             username:
+ *               type: string
+ *             password:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: Returns an object containing a success bool and a JWT Bearer token for auth
+ *       400:
+ *         description: Error object from validator
+ *       404:
+ *         description: User not found
+ */
 router.post('/login', (req, res) => {
     User.findOne({username: req.body.username})
         .then( user => {
@@ -128,6 +294,5 @@ router.post('/login', (req, res) => {
                 });
         });
 });
-
 
 module.exports = router;
